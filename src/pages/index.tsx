@@ -10,8 +10,12 @@ import { api } from "~/utils/api";
 
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const user = useUser();
+
+  const { data: postData } = api.posts.getAll.useQuery();
+  const { data: userData } = api.users.getAll.useQuery();
+  const { data: coterieData } = api.coteries.getAll.useQuery();
+
   return (
     <>
       <Head>
@@ -24,7 +28,21 @@ const Home: NextPage = () => {
           {!user.isSignedIn && <SignInButton />}
           {!!user.isSignedIn && <SignOutButton />}
         </div>
-        
+        <div>
+          {postData?.map((post) => (
+            <div key={post.id}>{post.content}</div>
+          ))}
+        </div>
+        <div>
+          {userData?.map((user) => (
+            <div key={user.id}>{user.id}</div>
+          ))}
+        </div>
+        <div>
+          {coterieData?.map((coterie) => (
+            <div key={coterie.id}>{coterie.name}</div>
+          ))}
+        </div>
       </main>
     </>
   );
