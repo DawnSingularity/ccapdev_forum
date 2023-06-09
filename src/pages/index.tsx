@@ -12,8 +12,7 @@ const Home: NextPage = () => {
 
   const { data: postData } = api.posts.getAll.useQuery();
   const { data: userData } = api.users.getAll.useQuery();
-  const { data: coterieData } = api.coteries.getAll.useQuery();
-
+  const { data: commentData } = api.comments.getAll.useQuery();
   return (
     <>
       <Head>
@@ -31,18 +30,28 @@ const Home: NextPage = () => {
             {!!user.isSignedIn && <SignOutButton />}
           </div>
           <div className ="flex flex-col">
-            {coterieData?.map((coterie) => (
-              <div key={coterie.id} className ="border-b border-slate-400 p-8">{coterie.name}</div>
+            {commentData?.map((comment) => (
+              <div key={comment.id} className ="border-b border-slate-400 p-8">
+                {comment.content}
+              </div>
             ))}
           </div>
           <div>
             {postData?.map((post) => (
-              <div key={post.id}>{post.content}</div>
+              <div key={post.id} className ="border-b border-slate-400 p-8">
+                {post.title}
+                <br />
+                {post.content}
+              </div>
             ))}
           </div>
           <div>
             {userData?.map((user) => (
-              <div key={user.id}>{user.id}</div>
+              <div key={user.id} className ="border-b border-slate-400 p-8">
+                {user.id}
+                <br />
+                {user.createdAt.toString()}
+              </div>
             ))}
           </div>
           

@@ -15,24 +15,36 @@ model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   posts     Post[]
-}
-
-model Coterie {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]
+  comments  Comment[]
 }
 
 model Post {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(100)
-  content     String   @db.VarChar(255)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  author      User     @relation(fields: [authorId], references: [id])
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
+  content     String    @db.VarChar(255)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      User      @relation(fields: [authorId], references: [id])
   authorId    String
-  coterie     Coterie  @relation(fields: [coterieId], references: [id])
-  coterieId   Int
+  comments    Comment[] @relation("PostToComment")
+
+  @@index([authorId])
+}
+
+model Comment {
+  id              Int       @id @default(autoincrement())
+  content         String    @db.VarChar(255)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  author          User      @relation(fields: [authorId], references: [id])
+  authorId        String
+  post            Post      @relation("PostToComment", fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  postId          Int
+  parentComment   Comment?  @relation("ChildComments", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentCommentId Int?
+  childComments   Comment[] @relation("ChildComments")
+
+  @@index([postId])
+  @@index([parentCommentId])
+  @@index([authorId])
 }
