@@ -2,7 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { z } from "zod";
 import type { User } from "@clerk/nextjs/dist/api";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 const filterUserForClient = (user: User) =>{
@@ -38,5 +38,26 @@ export const commentsRouter = createTRPCRouter({
         },
     };
   });
+  }),
+  
+  create: privateProcedure
+    .input(
+      z.object({
+        postId: z.number(),
+        content: z.string().min(1).max(255),
+
+      })
+  ).mutation(async ({ ctx, input}) =>{
+
+    const authorId= ctx.userId;
+    
+    const comment = await ctx.prisma.comment.create({
+      data: {
+        authorId,
+        postId: input.postId,
+        content: input.content,
+      },
+    });
+    return comment;
   }),
 });

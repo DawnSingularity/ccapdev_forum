@@ -7,12 +7,13 @@ import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
+import { useState } from "react";
 
 
 dayjs.extend(relativeTime);
 
 const Navbar = () => {
-  const {isSignedIn, user } = useUser()
+  const {isSignedIn, user } = useUser();
 
   return (
     <nav className="flex items-center justify-between p-4">
@@ -44,14 +45,45 @@ const Navbar = () => {
 
 const CreatePostWizard = () =>{
   const {user} = useUser();
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  const ctx = api.useContext();
+
+  const {mutate, isLoading: isPosting} = api.posts.create.useMutation({
+    onSuccess: ()=>{
+      setTitle("");
+      setContent("");
+      ctx.posts.getAll.invalidate();
+    }
+  });
+
   if(!user) return null;
   return (
     <div className = "border-b border-slate-400 p-8 flex">
       <div className ="flex w-full gap-3">
-        <input placeholder="Post whats on your mind" className="bg-transparent grow outline-none" />
+        <input 
+          placeholder="Title" 
+          className="bg-transparent grow outline-none"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          disabled={isPosting}
+        />
+        <input 
+          placeholder="Content" 
+          className="bg-transparent grow outline-none" 
+          type="text"
+          name="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          disabled={isPosting}
+        />
+        <button onClick={() => mutate({title, content})}>Post</button>
       </div>
     </div>
-  )
+  );
 };
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number];
@@ -66,10 +98,9 @@ const PostView = (props: PostWithUser) => {
       {post.content}
       <br />
       <span className="font-thin">{ `${dayjs(post.createdAt).fromNow()}` }</span>
-
     </div>
   );
-}
+};
 
 
 type CommentWithUser = RouterOutputs["comments"]["getAll"][number];
@@ -93,15 +124,13 @@ const CommentView = (props: CommentWithUser) => {
       </div>
     </div>
   );
-}
+};
 
 
 const PostFeed = () =>{
   const { data: postData, isLoading: postsLoading } = api.posts.getAll.useQuery();
-
   if(postsLoading) return <LoadingPage/>;
   if(!postData) return <div>Something went wrong</div>;
-
   return (
     <div className ="flex flex-col">
       {postData?.map((fullPost) => (
@@ -109,11 +138,10 @@ const PostFeed = () =>{
       ))}
     </div>
   );
-}
+};
 
 const UserFeed = () =>{
   const { data: userData, isLoading: UsersLoading } = api.users.getAll.useQuery();
-
   if(UsersLoading) return <LoadingPage/>;
   if(!userData) return <div>Something went wrong</div>;
   return (
@@ -127,7 +155,7 @@ const UserFeed = () =>{
       ))}
     </div>
   );
-}
+};
 
 const CommentFeed = () => {
   const { data: commentData, isLoading: CommentsLoading } = api.comments.getAll.useQuery();
@@ -142,7 +170,7 @@ const CommentFeed = () => {
       ))}
     </div>
   );
-}
+};
 
 const Home: NextPage = () => {
   const { isLoaded: userLoaded } = useUser();
@@ -163,14 +191,12 @@ const Home: NextPage = () => {
       </Head>
       <main className="textColor">
         <Navbar/>
-
         <div className="flex justify-center h-screen">
           <div className=" w-full md:max-w-4xl border border-slate-500">
               <CreatePostWizard />
             <CommentFeed/>
             <PostFeed/>
             <UserFeed/>
-            
           </div>
         </div>
       </main>
