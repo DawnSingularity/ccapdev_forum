@@ -6,12 +6,13 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
+import { LoadingPage } from "~/components/loading";
 
 
 dayjs.extend(relativeTime);
 
 const Navbar = () => {
-  const { isLoaded, isSignedIn, user } = useUser()
+  const {isSignedIn, user } = useUser()
 
   return (
     <nav className="flex items-center justify-between p-4">
@@ -45,8 +46,10 @@ const CreatePostWizard = () =>{
   const {user} = useUser();
   if(!user) return null;
   return (
-    <div className ="flex w-full gap-3">
-      <input placeholder="Post whats on your mind" className="bg-transparent grow outline-none" />
+    <div className = "border-b border-slate-400 p-8 flex">
+      <div className ="flex w-full gap-3">
+        <input placeholder="Post whats on your mind" className="bg-transparent grow outline-none" />
+      </div>
     </div>
   )
 };
@@ -92,10 +95,65 @@ const CommentView = (props: CommentWithUser) => {
   );
 }
 
+
+const PostFeed = () =>{
+  const { data: postData, isLoading: postsLoading } = api.posts.getAll.useQuery();
+
+  if(postsLoading) return <LoadingPage/>;
+  if(!postData) return <div>Something went wrong</div>;
+
+  return (
+    <div className ="flex flex-col">
+      {postData?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id}/>
+      ))}
+    </div>
+  );
+}
+
+const UserFeed = () =>{
+  const { data: userData, isLoading: UsersLoading } = api.users.getAll.useQuery();
+
+  if(UsersLoading) return <LoadingPage/>;
+  if(!userData) return <div>Something went wrong</div>;
+  return (
+    <div className ="flex flex-col">
+      {userData?.map((user) => (
+        <div key={user.id} className ="border-b border-slate-400 p-8">
+          {user.id}
+          <br />
+          {user.createdAt.toString()}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const CommentFeed = () => {
+  const { data: commentData, isLoading: CommentsLoading } = api.comments.getAll.useQuery();
+
+  if(CommentsLoading) return <LoadingPage/>;
+  if(!commentData) return <div>Something went wrong</div>;
+
+  return (
+    <div className ="flex flex-col">
+      {commentData?.map((fullPost) => (
+        <CommentView {...fullPost} key={fullPost.comment.id}/>
+      ))}
+    </div>
+  );
+}
+
 const Home: NextPage = () => {
-  const { data: postData } = api.posts.getAll.useQuery();
-  const { data: userData } = api.users.getAll.useQuery();
-  const { data: commentData } = api.comments.getAll.useQuery();
+  const { isLoaded: userLoaded } = useUser();
+
+  //fetch all necessary data asap
+  api.posts.getAll.useQuery();
+  api.users.getAll.useQuery();
+  api.comments.getAll.useQuery();
+  
+  if(!userLoaded) return < div/>;
+  
   return (
     <>
       <Head>
@@ -108,28 +166,10 @@ const Home: NextPage = () => {
 
         <div className="flex justify-center h-screen">
           <div className=" w-full md:max-w-4xl border border-slate-500">
-            <div className = "border-b border-slate-400 p-8 flex">
               <CreatePostWizard />
-            </div>
-            <div className ="flex flex-col">
-              {commentData?.map((fullPost) => (
-                <CommentView {...fullPost} key={fullPost.comment.id}/>
-              ))}
-            </div>
-            <div>
-              {postData?.map((fullPost) => (
-                <PostView {...fullPost} key={fullPost.post.id}/>
-              ))}
-            </div>
-            <div>
-              {userData?.map((user) => (
-                <div key={user.id} className ="border-b border-slate-400 p-8">
-                  {user.id}
-                  <br />
-                  {user.createdAt.toString()}
-                </div>
-              ))}
-            </div>
+            <CommentFeed/>
+            <PostFeed/>
+            <UserFeed/>
             
           </div>
         </div>
