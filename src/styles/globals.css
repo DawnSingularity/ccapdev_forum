@@ -4,5 +4,14 @@
 
 
 body {
-    @apply bg-black text-slate-100;
+    @apply bg-[#020403];
+}
+.textColor{
+    @apply text-[#f8fcfa];
+}
+.primaryButton{
+    @apply bg-[#34a00d];
+}
+.secondaryButton{
+    @apply bg-[#000000];
 }
