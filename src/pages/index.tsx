@@ -6,8 +6,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 
 dayjs.extend(relativeTime);
@@ -56,6 +57,14 @@ const CreatePostWizard = () =>{
       setTitle("");
       setContent("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError: (e) =>{
+      const errorMessage =e.data?.zodError?.fieldErrors.content;
+      if(errorMessage && errorMessage[0]){
+        toast.error(errorMessage[0]);
+      }else{
+        toast.error("Failed to post!");
+      }
     }
   });
 
@@ -69,6 +78,14 @@ const CreatePostWizard = () =>{
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e)=>{
+            if(e.key === "Enter"){
+              e.preventDefault();
+              if(title !=="" && content !==""){
+                mutate({title,content});
+              }
+            }
+          }}
           disabled={isPosting}
         />
         <input 
@@ -78,9 +95,25 @@ const CreatePostWizard = () =>{
           name="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e)=>{
+            if(e.key === "Enter"){
+              e.preventDefault();
+              if(title !=="" && content !==""){
+                mutate({title,content});
+              }
+            }
+          }}
           disabled={isPosting}
         />
-        <button onClick={() => mutate({title, content})}>Post</button>
+        {title !=="" && content !=="" && !isPosting && (
+          <button onClick={() => mutate({title, content})} >
+            Post
+          </button>)}
+        {isPosting && (
+          <div className="flex justify-center item-center">
+            <LoadingSpinner size={20}/>
+          </div>
+        )}
       </div>
     </div>
   );
