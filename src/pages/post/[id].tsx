@@ -53,7 +53,7 @@ const CommentFeed = () => {
   return (
     <div className ="flex flex-col">
       {commentData?.map((fullPost) => (
-        <CommentView {...fullPost}/>
+        <CommentView {...fullPost} key={fullPost.comment.id}/>
       ))}
     </div>
   );

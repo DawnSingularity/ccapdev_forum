@@ -27,7 +27,7 @@ export const commentsRouter = createTRPCRouter({
     const comments = await ctx.prisma.comment.findMany({
       take: 100,
     });
-    return addUsersDataToPosts(comments);
+    return comments;
   }),
   getAll: publicProcedure.query( async ({ ctx }) => {
     const comments = await ctx.prisma.comment.findMany({
