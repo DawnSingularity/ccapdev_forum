@@ -126,7 +126,7 @@ const PostView = (props: PostWithUser) => {
   return(
     <div key={post.id} className ="flex border-b border-slate-400 p-8 flex-col">
       <div className="flex inline-block">
-        <Link href={`/${author.username}`} >{author.username} </Link>
+        <Link href={`/${author.username ?? ""}`} >{author.username ?? ""} </Link>
         <span className="ml-5 font-thin">{ `${dayjs(post.createdAt).fromNow()}` }</span>
       </div>
       
