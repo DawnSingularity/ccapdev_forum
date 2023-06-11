@@ -76,7 +76,6 @@ export const getStaticProps: GetStaticProps = async (context) =>{
 
   const slug = context.params?.slug;
   if(typeof slug !== "string") throw new Error ("no slug");
-  console.log(slug);
   await ssg.profile.getUserByUsername.prefetch({username: slug})
 
   return {
