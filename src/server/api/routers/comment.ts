@@ -39,25 +39,4 @@ export const commentsRouter = createTRPCRouter({
     };
   });
   }),
-  
-  create: privateProcedure
-    .input(
-      z.object({
-        postId: z.number(),
-        content: z.string().min(1).max(255),
-
-      })
-  ).mutation(async ({ ctx, input}) =>{
-
-    const authorId= ctx.userId;
-    
-    const comment = await ctx.prisma.comment.create({
-      data: {
-        authorId,
-        postId: input.postId,
-        content: input.content,
-      },
-    });
-    return comment;
-  }),
 });

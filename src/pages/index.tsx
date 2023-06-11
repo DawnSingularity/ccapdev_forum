@@ -55,7 +55,7 @@ const CreatePostWizard = () =>{
     onSuccess: ()=>{
       setTitle("");
       setContent("");
-      ctx.posts.getAll.invalidate();
+      void ctx.posts.getAll.invalidate();
     }
   });
 
