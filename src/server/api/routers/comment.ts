@@ -52,7 +52,7 @@ export const commentsRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        postId: z.number(),
+        postId: z.string(),
         content: z.string().min(1).max(255),
       })
   ).mutation(async ({ ctx, input}) =>{
