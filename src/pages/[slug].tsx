@@ -9,7 +9,6 @@ import Image from "next/image";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import Link from "next/link";
 
 
 dayjs.extend(relativeTime);
@@ -124,20 +123,14 @@ type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 const PostView = (props: PostWithUser) => {
   const {post, author} = props;
   return(
-    <div key={post.id} className ="flex border-b border-slate-400 p-8 flex-col">
-      <div className="flex inline-block">
-        <Link href={`/${author.username}`} >{author.username} </Link>
-        <span className="ml-5 font-thin">{ `${dayjs(post.createdAt).fromNow()}` }</span>
-      </div>
-      
-      <Link href={`/post/${post.id}`} >
-        <div className="flex flex-col">
-          <span>{post.title} </span>
-          <span>{post.content}</span>
-        </div>
-      </Link>
-
-      
+    <div key={post.id} className ="flex border-b border-slate-400 p-8  ">
+      {author.username}
+      <br />
+      {post.title} 
+      <br />
+      {post.content}
+      <br />
+      <span className="font-thin">{ `${dayjs(post.createdAt).fromNow()}` }</span>
     </div>
   );
 };
@@ -195,7 +188,7 @@ const CommentFeed = () => {
   );
 };
 
-const Home: NextPage = () => {
+const ProfilePage: NextPage = () => {
   const { isLoaded: userLoaded } = useUser();
 
   //fetch all necessary data asap
@@ -214,15 +207,11 @@ const Home: NextPage = () => {
       <main className="textColor">
         <Navbar/>
         <div className="flex justify-center h-screen">
-          <div className=" w-full md:max-w-4xl border border-slate-500">
-              <CreatePostWizard />
-            <CommentFeed/>
-            <PostFeed/>
-          </div>
+          profileView
         </div>
       </main>
     </>
   );
 };
 
-export default Home;
+export default ProfilePage;
