@@ -23,7 +23,7 @@ const Navbar = () => {
               <UserButton afterSignOutUrl="/"/>
               
               <div className="ml-2">
-                {user.username}
+                {user?.username}
               </div>
           </div>
         )}
