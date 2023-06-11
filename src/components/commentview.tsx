@@ -12,7 +12,7 @@ export const CommentView = (props: CommentWithUser) => {
     <div key={comment.id} className ="flex border-b border-slate-400 p-8 gap-3">
       <Image 
         src={author.profileImageUrl} 
-        alt={`${author.username}'s profile picture`}
+        alt={`${author.username ?? ""}'s profile picture`}
         className="rounded-full" 
         width={56}
         height={56}
