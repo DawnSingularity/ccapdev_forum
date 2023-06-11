@@ -24,7 +24,7 @@ model Post {
   content     String    @db.VarChar(255)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  author      User      @relation(fields: [authorId], references: [id])
+  author      User?      @relation(fields: [authorId], references: [id])
   authorId    String
   comments    Comment[] @relation("PostToComment")
 
