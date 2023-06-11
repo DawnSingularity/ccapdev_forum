@@ -21,7 +21,6 @@ const Navbar = () => {
   return (
     <nav className="flex items-center justify-between p-4 textColor">
       <div className="flex items-center">
-        <img src="/logo.png" alt="Logo" className="w-8 h-8 mr-4" />
         <span className="text-white font-bold text-lg"></span>
       </div>
       
