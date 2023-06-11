@@ -140,23 +140,6 @@ const PostFeed = () =>{
   );
 };
 
-const UserFeed = () =>{
-  const { data: userData, isLoading: UsersLoading } = api.users.getAll.useQuery();
-  if(UsersLoading) return <LoadingPage/>;
-  if(!userData) return <div>Something went wrong</div>;
-  return (
-    <div className ="flex flex-col">
-      {userData?.map((user) => (
-        <div key={user.id} className ="border-b border-slate-400 p-8">
-          {user.id}
-          <br />
-          {user.createdAt.toString()}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const CommentFeed = () => {
   const { data: commentData, isLoading: CommentsLoading } = api.comments.getAll.useQuery();
 
@@ -177,7 +160,6 @@ const Home: NextPage = () => {
 
   //fetch all necessary data asap
   api.posts.getAll.useQuery();
-  api.users.getAll.useQuery();
   api.comments.getAll.useQuery();
   
   if(!userLoaded) return < div/>;
@@ -196,7 +178,6 @@ const Home: NextPage = () => {
               <CreatePostWizard />
             <CommentFeed/>
             <PostFeed/>
-            <UserFeed/>
           </div>
         </div>
       </main>
