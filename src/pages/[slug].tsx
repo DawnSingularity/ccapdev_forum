@@ -2,6 +2,12 @@ import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
+import Image from "next/image";
+import { PageLayout } from "~/components/layout";
+import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postview";
+import { generateSSGHelper } from "~/server/helpers/ssgHelper";
+
 
 const Navbar = () => {
   const {isSignedIn, user } = useUser();
@@ -33,6 +39,19 @@ const Navbar = () => {
 };
 
 
+const ProfileFeed = (props: {userId: string}) =>{
+    const {data, isLoading} = api.posts.getPostByUserId.useQuery({userId: props.userId});
+
+    if(isLoading) return <LoadingPage />;
+    if(!data || data.length === 0) return <div>User has not posted</div>
+
+    return (
+        <div className="flex flex-col">
+            {data.map((fullPost) =>(<PostView {...fullPost} key={fullPost.post.id}/>))}
+        </div>
+    )
+}
+
 const ProfilePage: NextPage<{username: string}> = ({username}) => {
   const {data} = api.profile.getUserByUsername.useQuery({
     username,
@@ -43,41 +62,34 @@ const ProfilePage: NextPage<{username: string}> = ({username}) => {
       <Head>
         <title>{data.username}</title>
       </Head>
-      <main className="textColor">
         <Navbar/>
         <PageLayout>
-            <div className="h-48">
-            <Image
-                src={data.profileImageUrl}
-                alt={`${data.username ?? ""}'s profile picture`}
-                width={168}
-                height={168}
-                className="rounded-full border-white border-2"
-            />
-            <div className="h-[32px]"></div>
-            <div className="p-3 text-2xl font-bold">{data.username ?? ""}</div>
+            <div className="h-48 p-2">
+                <Image
+                    src={data.profileImageUrl}
+                    alt={`${data.username ?? ""}'s profile picture`}
+                    width={168}
+                    height={168}
+                    className="rounded-full border-white border-2"
+                />
             </div>
-            <div className="border-b w-full border-slate-500"></div>
+            <div className="h-[32px]"/>
+            <div className=" text-2xl font-bold">{data.username ?? ""}</div>
+            
+            <div className="border-b w-full border-slate-500"/>
+            <ProfileFeed userId={data.id}/>
+
         </PageLayout>
 
-      </main>
     </>
   );
 };
 
-import { createServerSideHelpers } from '@trpc/react-query/server';
-import { prisma } from '~/server/db';
-import { appRouter } from "~/server/api/root";
-import superjson from "superjson";
-import Image from "next/image";
-import { PageLayout } from "~/components/layout";
+
+
 
 export const getStaticProps: GetStaticProps = async (context) =>{
-  const ssg = createServerSideHelpers({
-    router: appRouter,
-    ctx: { prisma, userId: null },
-    transformer: superjson,
-  });
+  const ssg = generateSSGHelper();
 
   const slug = context.params?.slug;
   if(typeof slug !== "string") throw new Error ("no slug");
