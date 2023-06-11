@@ -23,6 +23,12 @@ const ratelimit = new Ratelimit({
 });
 
 export const commentsRouter = createTRPCRouter({
+  getAllNoData: publicProcedure.query( async ({ ctx }) => {
+    const comments = await ctx.prisma.comment.findMany({
+      take: 100,
+    });
+    return addUsersDataToPosts(comments);
+  }),
   getAll: publicProcedure.query( async ({ ctx }) => {
     const comments = await ctx.prisma.comment.findMany({
       take: 100,
@@ -49,11 +55,52 @@ export const commentsRouter = createTRPCRouter({
   });
   }),
 
+  getCommentByPostId: publicProcedure
+    .input(z.object({ postId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const comments = await ctx.prisma.comment.findMany({
+        where: {
+          postId: input.postId,
+        },
+        take: 100,
+        orderBy: [{ createdAt: "desc" }],
+      });
+
+      const authorIds = comments.map((comment) => comment.authorId);
+      const authors = await clerkClient.users.getUserList({
+        userId: authorIds,
+        limit: 100,
+      });
+
+      const filteredAuthors = authors.map(filterUserForClient);
+
+      const commentsWithAuthors = comments.map((comment) => {
+        const author = filteredAuthors.find((user) => user.id === comment.authorId);
+        if (!author) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author for comment not found",
+          });
+        }
+        return {
+          comment,
+          author: {
+            ...author,
+            username: author.username,
+          },
+        };
+      });
+
+      return commentsWithAuthors;
+    }),
+
+
   create: privateProcedure
     .input(
       z.object({
         postId: z.string(),
         content: z.string().min(1).max(255),
+        authorId: z.string(),
       })
   ).mutation(async ({ ctx, input}) =>{
 
@@ -70,3 +117,7 @@ export const commentsRouter = createTRPCRouter({
     return post;
   }),
 });
+function addUsersDataToPosts(comments: import(".prisma/client").Comment[]): any {
+  throw new Error("Function not implemented.");
+}
+

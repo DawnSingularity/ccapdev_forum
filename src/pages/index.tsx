@@ -3,7 +3,7 @@ import { type NextPage } from "next";
 import dayjs from "dayjs";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
-import Image from "next/image";
+
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -118,28 +118,6 @@ const CreatePostWizard = () =>{
 };
 
 
-type CommentWithUser = RouterOutputs["comments"]["getAll"][number];
-const CommentView = (props: CommentWithUser) => {
-  const {comment, author} = props;
-  return(
-    <div key={comment.id} className ="flex border-b border-slate-400 p-8 gap-3">
-      <Image 
-        src={author.profileImageUrl} 
-        alt={`${author.username}'s profile picture`}
-        className="rounded-full" 
-        width={56}
-        height={56}
-        />
-      <div className="flex flex-col">
-        <div className="flex gap-2">
-          <span>{author.username}</span>
-          <span className="font-thin">{ `${dayjs(comment.createdAt).fromNow()}` }</span>
-        </div>
-          <span>{comment.content}</span>
-      </div>
-    </div>
-  );
-};
 
 
 const PostFeed = () =>{
@@ -155,27 +133,13 @@ const PostFeed = () =>{
   );
 };
 
-const CommentFeed = () => {
-  const { data: commentData, isLoading: CommentsLoading } = api.comments.getAll.useQuery();
 
-  if(CommentsLoading) return <LoadingPage/>;
-  if(!commentData) return <div>Something went wrong</div>;
-
-  return (
-    <div className ="flex flex-col">
-      {commentData?.map((fullPost) => (
-        <CommentView {...fullPost} key={fullPost.comment.id}/>
-      ))}
-    </div>
-  );
-};
 
 const Home: NextPage = () => {
   const { isLoaded: userLoaded } = useUser();
 
   //fetch all necessary data asap
   api.posts.getAll.useQuery();
-  api.comments.getAll.useQuery();
   
   if(!userLoaded) return < div/>;
   
@@ -183,7 +147,6 @@ const Home: NextPage = () => {
         <>
         <Navbar /><PageLayout>
       <CreatePostWizard />
-      <CommentFeed />
       <PostFeed />
     </PageLayout>
     </>
