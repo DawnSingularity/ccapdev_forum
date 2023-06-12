@@ -20,7 +20,7 @@ export const PostView = (props: PostWithUser) => {
   const [updatetitle, setUpdatetitle] = useState(post.title);
   const [updateContent, setUpdateContent] = useState(post.content);
 
-  const ctx = api.useContext();
+  const ctx = api.useContext(); 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -55,7 +55,7 @@ export const PostView = (props: PostWithUser) => {
         <div className="flex inline-block">
           <Link href={`/${author.username ?? ""}`}>{author.username ?? ""} </Link>
           <span className="ml-5 font-thin">{`${createdAt}`}</span>
-          {(createdAt === updatedAt) && <span className="ml-2 font-thin">edited</span>}
+          {(createdAt !== updatedAt) && <span className="ml-2 font-thin">edited</span>}
         </div>
 
         <Link href={`/post/${post.id}`}>
