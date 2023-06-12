@@ -33,7 +33,7 @@ model Comment {
   parentComment   Comment?   @relation("ChildComments", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   childComments   Comment[]  @relation("ChildComments")
   votes           Vote[]
-  post            Post       @relation("PostToComment", fields: [postId], references: [id])
+  post            Post       @relation("PostToComment", fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([parentCommentId])
   @@index([postId])
@@ -47,8 +47,8 @@ model Vote {
   postId      String?
   authorId    String
   commentId   String?
-  post        Post?     @relation(fields: [postId], references: [id])
-  comment     Comment?  @relation(fields: [commentId], references: [id])
+  post        Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment     Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([commentId])

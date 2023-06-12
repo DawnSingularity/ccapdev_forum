@@ -23,37 +23,6 @@ const ratelimit = new Ratelimit({
 });
 
 export const commentsRouter = createTRPCRouter({
-  getAllNoData: publicProcedure.query( async ({ ctx }) => {
-    const comments = await ctx.prisma.comment.findMany({
-      take: 100,
-    });
-    return comments;
-  }),
-  getAll: publicProcedure.query( async ({ ctx }) => {
-    const comments = await ctx.prisma.comment.findMany({
-      take: 100,
-    });
-    const users = (
-      await clerkClient.users.getUserList({
-        userId: comments.map((comment) => comment.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
-    return comments.map(comment =>{
-      const author = users.find((user) => user.id === comment.authorId);
-      if(!author || !author.username) throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR", 
-        message: "Author for post not found",
-      });
-      return {
-        comment,
-        author:{
-          ...author,
-          username: author.username,
-        },
-    };
-  });
-  }),
 
   getCommentByPostId: publicProcedure
     .input(z.object({ postId: z.string() }))
@@ -72,10 +41,8 @@ export const commentsRouter = createTRPCRouter({
         limit: 100,
       });
 
-      const filteredAuthors = authors.map(filterUserForClient);
-
       const commentsWithAuthors = comments.map((comment) => {
-        const author = filteredAuthors.find((user) => user.id === comment.authorId);
+        const author = authors.map(filterUserForClient).find((user) => user.id === comment.authorId);
         if (!author) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -117,7 +84,5 @@ export const commentsRouter = createTRPCRouter({
     return post;
   }),
 });
-function addUsersDataToPosts(comments: import(".prisma/client").Comment[]): any {
-  throw new Error("Function not implemented.");
-}
+
 

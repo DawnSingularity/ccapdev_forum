@@ -104,4 +104,46 @@ export const postsRouter = createTRPCRouter({
     });
     return post;
   }),
+
+  update: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).max(100),
+        content: z.string().min(1).max(255),
+      })
+    ).mutation(async ({ctx, input}) =>{
+      const authorId = ctx.userId;
+      const { success } = await ratelimit.limit(authorId);
+
+    if(!success) throw new TRPCError({code: "TOO_MANY_REQUESTS"});
+    const post = await ctx.prisma.post.update({
+      where:{
+        id: input.id,
+      },
+      data: { 
+        title: input.title, 
+        content: input.content,
+      },
+    });
+    return post;
+    }),
+
+  delete: privateProcedure
+  .input(
+    z.object({
+      postId: z.string(),
+    })
+  ).mutation(async({ctx, input}) =>{
+    const authorId = ctx.userId;
+      const { success } = await ratelimit.limit(authorId);
+
+    if(!success) throw new TRPCError({code: "TOO_MANY_REQUESTS"});
+    const post = await ctx.prisma.post.delete({
+      where:{
+        id: input.postId,
+      },
+    });
+    return post;
+  })
 });
