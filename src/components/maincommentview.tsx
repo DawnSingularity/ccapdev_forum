@@ -6,8 +6,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 
 dayjs.extend(relativeTime);
-type CommentWithUser = RouterOutputs["comments"]["getCommentByPostId"][number];
-export const CommentView = (props: CommentWithUser) => {
+type CommentWithUser = RouterOutputs["comments"]["getSingleCommentById"][number];
+export const MainCommentView = (props: CommentWithUser) => {
   const {comment, author} = props;
   const createdAt = dayjs(comment.createdAt).fromNow();
   const updatedAt = dayjs(comment.updatedAt).fromNow();

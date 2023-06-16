@@ -28,6 +28,7 @@ export const PostView = (props: PostWithUser) => {
   };
   const {mutate: mutationUpdate, isLoading: isPosting} = api.posts.update.useMutation({
     onSuccess: () =>{
+      console.log(post);
       setUpdatetitle(updatetitle);
       setUpdateContent(updateContent);
       setIsMenuOpen(!isMenuOpen);

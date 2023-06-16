@@ -1,15 +1,16 @@
 import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
-import { RouterOutputs, api } from "~/utils/api";
+import { api } from "~/utils/api";
 import { PageLayout } from "~/components/layout";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
-import { PostView } from "~/components/postview";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
-import { CommentView } from "~/components/commentview";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { SubCommentView } from "~/components/subcommentview";
+import { PostView } from "~/components/postview";
+import { MainCommentView } from "~/components/maincommentview";
 
 
 const Navbar = () => {
@@ -41,11 +42,9 @@ const Navbar = () => {
   );
 };
 
-
-
-const CommentFeed = () => {
+const MainCommentFeed = () => {
   const router = useRouter();
-  const { data: commentData, isLoading: CommentsLoading } = api.comments.getCommentByPostId.useQuery({postId: router.query.id as string});
+  const { data: commentData, isLoading: CommentsLoading } = api.comments.getSingleCommentById.useQuery({commentId: router.query.id as string});
 
   if(CommentsLoading) return <LoadingPage/>;
   if(!commentData) return <div>Something went wrong</div>;
@@ -53,22 +52,39 @@ const CommentFeed = () => {
   return (
     <div className ="flex flex-col">
       {commentData?.map((fullPost) => (
-        <CommentView {...fullPost} key={fullPost.comment.id}/>
+        <MainCommentView {...fullPost} key={fullPost.comment.id}/>
       ))}
     </div>
   );
 };
 
-const CreatePostWizard = () => {
+const CommentFeed = () => {
+  const router = useRouter();
+  const { data: commentData, isLoading: CommentsLoading } = api.comments.getCommentByParentCommentId.useQuery({parentCommentId: router.query.id as string});
+
+  if(CommentsLoading) return <LoadingPage/>;
+  if(!commentData) return <div>Something went wrong</div>;
+
+  return (
+    <div className ="flex flex-col">
+      {commentData?.map((fullPost) => (
+        <SubCommentView {...fullPost} key={fullPost.comment.id}/>
+      ))}
+    </div>
+  );
+};
+
+const CreatePostWizard = (props: {postId: string}) => {
   const { user } = useUser();
   const [content, setContent] = useState("");
   const ctx = api.useContext();
   const router = useRouter();
   const id = router.query.id as string; 
-  const { mutate, isLoading: isPosting } = api.comments.create.useMutation({
+  const { mutate, isLoading: isPosting } = api.comments.subCommentCreate.useMutation({
     onSuccess: () => {
       setContent("");
-      void ctx.comments.getCommentByPostId.invalidate();
+      void ctx.comments.getCommentByParentCommentId.invalidate();
+      void ctx.comments.getSingleCommentById.invalidate();
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;
@@ -95,14 +111,14 @@ const CreatePostWizard = () => {
             if (e.key === "Enter") {
               e.preventDefault();
               if (content !== "") {
-                mutate({ postId: id, content, authorId: user.id }); // Pass the postId from the router query
+                mutate({ postId:props.postId, content, authorId: user.id, parentCommentId: id }); // Pass the postId from the router query
               }
             }
           }}
           disabled={isPosting}
         />
         {content !== "" && !isPosting && (
-          <button onClick={() => mutate({ postId: id, content, authorId: user.id  })}>
+          <button onClick={() => mutate({ postId: props.postId, content, authorId: user.id, parentCommentId: id   })}>
             Post
           </button>
         )}
@@ -116,21 +132,29 @@ const CreatePostWizard = () => {
   );
 };
 
-const SinglePostPage: NextPage<{id: string}> = ({id}) => {
-  const {data} = api.posts.getById.useQuery({
+const SingleCommentPage: NextPage<{id: string}> = ({id}) => {
+  const {data} = api.comments.getById.useQuery({
     id,
   });
+  const postId = data?.postId;
+  if(!postId) return <div/>
+  const {data: postData} = api.posts.getById.useQuery({
+    id: postId,
+  }); 
+  
   if(!data) return <div>404</div>
+  if(!postData) return <div>404</div>
   return (
     <>
       <Head>
-        <title>{`${data.post.content ?? ""} - ${data.author.username ?? ""}`}</title>
+        <title>{`${data.content ?? ""}`}</title>
       </Head>
         <Navbar/>
         <PageLayout>
-          <PostView {...data}/>
+          <PostView {...postData}/>
+          <MainCommentFeed />
           <CommentFeed />
-          <CreatePostWizard  />
+          <CreatePostWizard postId={postId} />
         </PageLayout>
     </>
   );
@@ -141,7 +165,7 @@ export const getStaticProps: GetStaticProps = async (context) =>{
 
   const id = context.params?.id;
   if(typeof id !== "string") throw new Error ("no id");
-  await ssg.posts.getById.prefetch({id});
+  await ssg.comments.getById.prefetch({id});
 
   return {
     props:{
@@ -155,4 +179,4 @@ export const getStaticPaths = () =>{
   return{paths: [], fallback: "blocking"};
 };
 
-export default SinglePostPage;
+export default SingleCommentPage;
