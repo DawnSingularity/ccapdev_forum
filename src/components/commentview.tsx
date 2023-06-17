@@ -41,13 +41,13 @@ export const CommentView = (props: CommentWithUser) => {
     <div className="flex justify-center item-center">
       <LoadingSpinner size={20} />
     </div>
-  )};
+  )}
   function handleUpdate(commentId: string, updatedContent: string){
     mutationUpdate({id: commentId, content: updatedContent})
-  };
+  }
   function handleDelete(commentId: string){
     mutationDelete({id: commentId})
-  };
+  }
   return(
     <>
     <div key={comment.id} className ="flex border-b border-slate-400 p-8 gap-3 relative">
