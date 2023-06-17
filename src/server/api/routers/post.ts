@@ -146,5 +146,5 @@ export const postsRouter = createTRPCRouter({
       },
     });
     return post;
-  })
+  }),
 });

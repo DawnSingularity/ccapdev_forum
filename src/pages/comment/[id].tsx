@@ -84,7 +84,6 @@ const CreatePostWizard = (props: {postId: string}) => {
     onSuccess: () => {
       setContent("");
       void ctx.comments.getCommentByParentCommentId.invalidate();
-      void ctx.comments.getSingleCommentById.invalidate();
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;

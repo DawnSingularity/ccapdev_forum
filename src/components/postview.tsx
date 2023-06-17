@@ -28,7 +28,6 @@ export const PostView = (props: PostWithUser) => {
   };
   const {mutate: mutationUpdate, isLoading: isPosting} = api.posts.update.useMutation({
     onSuccess: () =>{
-      console.log(post);
       setUpdatetitle(updatetitle);
       setUpdateContent(updateContent);
       setIsMenuOpen(!isMenuOpen);
@@ -44,6 +43,11 @@ export const PostView = (props: PostWithUser) => {
       void ctx.posts.getAll.invalidate();
     }
   });
+  {(isPosting || isDeleting) && (
+    <div className="flex justify-center item-center">
+      <LoadingSpinner size={20} />
+    </div>
+  )}
   function handleUpdate(postId: string,updatedtitle: string, updatedContent: string){
     mutationUpdate({id: postId, title: updatedtitle, content: updatedContent})
   }
@@ -84,9 +88,9 @@ export const PostView = (props: PostWithUser) => {
 
           {isMenuOpen && (
             <>
-                <div className = " p-4 flex">
+                <div className = "flex flex-col">
                 
-                <div className ="flex w-full gap-3">
+                <div className ="flex w-full gap-3 flex-col">
                   <input 
                     placeholder="Title" 
                     className="bg-transparent grow outline-none"
@@ -105,7 +109,7 @@ export const PostView = (props: PostWithUser) => {
                   />
                   <input 
                     placeholder="Content" 
-                    className="bg-transparent grow outline-none" 
+                    className="bg-transparent grow outline-none flex-col" 
                     type="text"
                     name="content"
                     value={updateContent}
