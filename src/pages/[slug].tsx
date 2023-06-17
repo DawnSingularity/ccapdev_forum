@@ -108,6 +108,7 @@ const ProfileFeed = (props: {userId: string}) =>{
 }
 
 const ProfilePage: NextPage<{username: string}> = ({username}) => {
+  const user = useUser();
   const {data: userProfiledata} = api.profile.getUserByUsername.useQuery({
     username,
   });
@@ -135,7 +136,9 @@ const ProfilePage: NextPage<{username: string}> = ({username}) => {
             <div className="h-[32px]"/>
             <div className=" text-2xl font-bold">{userProfiledata.username ?? ""}</div>
             <div className=" text-2xl">{userDescription?.description ?? "no bio "}</div>
-            <CreatePostWizard userId={userProfiledata.id}/>
+            {(userProfiledata.id === user.user?.id) && (
+              <CreatePostWizard userId={userProfiledata.id}/>
+            )}
 
             <div className="border-b w-full border-slate-500"/>
             <ProfileFeed userId={userProfiledata?.id}/>
