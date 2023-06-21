@@ -163,7 +163,7 @@ export const SubCommentView = (props: CommentWithUser) => {
           <div className="flex items-center ml-2 mt-4 -mb-5">
             <div className="flex flex-col items-center mr-4">
               <button
-                className={`rounded-full p-1 ${VoteStatus ? 'bg-blue-500' : ''}`}
+                className={`rounded-full p-1 ${VoteStatus === true ? 'bg-blue-500' : ''}`}
                 onClick={() => handleVoteClick('upvote')}
               >
                 <FontAwesomeIcon icon={faHeart} className="text-xl" />
@@ -172,7 +172,7 @@ export const SubCommentView = (props: CommentWithUser) => {
             </div>
             <div className="flex flex-col items-center">
               <button
-                className={`rounded-full p-1 ${!VoteStatus ? 'bg-red-500' : ''}`}
+                className={`rounded-full p-1 ${VoteStatus === false ? 'bg-red-500' : ''}`}
                 onClick={() => handleVoteClick('downvote')}
               >
                 <FontAwesomeIcon icon={faThumbsDown} className="text-xl" />
