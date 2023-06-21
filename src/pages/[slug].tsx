@@ -95,7 +95,7 @@ const CreatePostWizard = (props: {userId: string}) => {
 };
 
 const ProfileFeed = (props: {userId: string}) =>{
-    const {data: postdata, isLoading: postloading} = api.posts.getPostByUserId.useQuery({userId: props.userId});
+    const {data: postdata, isLoading: postloading} = api.posts.getPostByUserId.useQuery({id: props.userId});
     const {data: commentData, isLoading: commentloading} = api.comments.getCommentByUserId.useQuery({userId: props.userId});
     if(postloading || commentloading) return <LoadingPage />;
     if(!postdata || postdata.length === 0 || !commentData || commentData.length===0) return <div>User has not posted</div>

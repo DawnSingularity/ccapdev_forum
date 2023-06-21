@@ -72,6 +72,9 @@ export const commentsRouter = createTRPCRouter({
         },
         take: 100,
         orderBy: [{ createdAt: "desc" }],
+        include: {
+          votes: true, // Include the "votes" relation field
+        },
       });
       const authorIds = comments.map((comment) => comment.authorId);
       const authors = await clerkClient.users.getUserList({
@@ -86,16 +89,38 @@ export const commentsRouter = createTRPCRouter({
             message: "Author for comment not found",
           });
         }
+        const commentUpvotesCount = comment?.votes.filter((comment) => comment.vote === true).length ?? 0;
+        const commentDownvotesCount = comment?.votes.filter((comment) => comment.vote === false).length ?? 0;
+
         return {
           comment,
           author: {
             ...author,
             username: author.username,
           },
+          commentUpvotesCount,
+          commentDownvotesCount,
         };
       });
       return commentsWithAuthors;
     }),
+  
+  getVoteCount: publicProcedure
+    .input(z.object({id: z.string()}))
+    .query( async ({ ctx, input }) => {
+      const comment = await ctx.prisma.comment.findUnique({
+        where:{
+          id: input.id,
+        },
+        include:{
+          votes: true,
+        },
+      });
+      const commentUpvotesCount = comment?.votes.filter((vote) => vote.vote === true).length ?? 0;
+      const commentDownvotesCount = comment?.votes.filter((vote) => vote.vote === false).length ?? 0;
+      return {commentUpvotesCount, commentDownvotesCount };
+    }),
+
 
   getCommentByPostId: publicProcedure
     .input(z.object({ postId: z.string() }))
@@ -104,6 +129,9 @@ export const commentsRouter = createTRPCRouter({
         where: {
           postId: input.postId,
           parentCommentId: null,
+        },
+        include:{
+          votes: true,
         },
         take: 100,
         orderBy: [{ createdAt: "desc" }],
@@ -121,12 +149,17 @@ export const commentsRouter = createTRPCRouter({
             message: "Author for comment not found",
           });
         }
+        const commentUpvotesCount = comment?.votes.filter((vote) => vote.vote === true).length ?? 0;
+        const commentDownvotesCount = comment?.votes.filter((vote) => vote.vote === false).length ?? 0;
+
         return {
           comment,
           author: {
             ...author,
             username: author.username,
           },
+          commentUpvotesCount,
+          commentDownvotesCount,
         };
       });
       return commentsWithAuthors;
@@ -141,6 +174,9 @@ export const commentsRouter = createTRPCRouter({
         },
         take: 100,
         orderBy: [{ createdAt: "asc" }],
+        include:{
+          votes: true,
+        },
       });
       const authorIds = ParentComment.map((comment) => comment.authorId);
       const authors = await clerkClient.users.getUserList({
@@ -155,12 +191,17 @@ export const commentsRouter = createTRPCRouter({
           message: "Author for comment not found",
         });
       }
+      const commentUpvotesCount = comment?.votes.filter((vote) => vote.vote === true).length ?? 0;
+      const commentDownvotesCount = comment?.votes.filter((vote) => vote.vote === false).length ?? 0;
+
       return {
         comment,
         author: {
           ...author,
           username: author.username,
           },
+          commentUpvotesCount,
+          commentDownvotesCount,
         };
       });
       return commentsWithAuthors;  
@@ -178,7 +219,42 @@ export const commentsRouter = createTRPCRouter({
       }).then(addUsersDataToComments)
     ),
 
-
+  updateCommentVote: privateProcedure
+  .input(
+    z.object({
+      commentId: z.string(),
+      vote: z.boolean(),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    const authorId = ctx.userId;
+    const prismaVote = await ctx.prisma.vote.findFirst({
+      where: {
+        commentId: input.commentId,
+      }
+    })
+    if(prismaVote !==null){
+      const updatedVote = await ctx.prisma.vote.update({
+        where: {
+          id: prismaVote.id,
+        },
+        data: {
+          vote: input.vote,
+        },
+      });
+      return updatedVote;
+    }
+    if(prismaVote=== null){
+      const updatedVote = await ctx.prisma.vote.create({
+        data: {
+          authorId,
+          vote: input.vote,
+          commentId: input.commentId,
+        },
+      });
+      return updatedVote
+    }
+  }),
   create: privateProcedure
     .input(
       z.object({

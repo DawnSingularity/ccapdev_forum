@@ -12,6 +12,13 @@ const config = {
   images: {
     domains: ["www.gravatar.com", "images.clerk.dev"],
   },
+  webpack(config){
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: [{loader: '@svgr/webpack', options: {icon: true}}],
+    })
+    return config
+  },
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config
    * out.

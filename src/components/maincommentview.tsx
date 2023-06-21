@@ -7,12 +7,15 @@ import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { LoadingSpinner } from "./loading";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faHeartCrack, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+
 
 dayjs.extend(relativeTime);
 type CommentWithUser = RouterOutputs["comments"]["getSingleCommentById"][number];
 export const MainCommentView = (props: CommentWithUser) => {
   const user = useUser();
-  const {comment, author} = props;
+  const {comment, author, commentUpvotesCount, commentDownvotesCount} = props;
   const createdAt = dayjs(comment.createdAt).fromNow();
   const updatedAt = dayjs(comment.updatedAt).fromNow();
   const [updateContent, setUpdateContent] = useState(comment.content);
@@ -21,7 +24,26 @@ export const MainCommentView = (props: CommentWithUser) => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  const [voteType, setVoteType] = useState<null | string>(null);
+  const vote = api.votes.findCommentPost.useQuery({commentId: comment.id});
+  const [VoteStatus, setVoteStatus] = useState(vote.data?.vote);
+  const {mutate: mutationVote} = api.comments.updateCommentVote.useMutation({
+    onSuccess: () =>{
+      void ctx.comments.getAll.invalidate();
+      void ctx.votes.getAll.invalidate();
+      setVoteStatus(!VoteStatus);
+    }
+  });
+  const handleVoteClick = (type: string) => {
+    if (type === 'upvote') {
+      mutationVote({commentId: comment.id, vote: true})
+      setVoteType('upvote');
+    }
+    if(type === 'downvote') {
+      mutationVote({commentId: comment.id, vote: false})
+      setVoteType('downvote');
+    }
+  };
   const {mutate: mutationUpdate, isLoading: isPosting} = api.comments.update.useMutation({
     onSuccess: () =>{
       setUpdateContent(updateContent);
@@ -136,7 +158,27 @@ export const MainCommentView = (props: CommentWithUser) => {
             
             </>
           )}
-        </div>  
+          <div className="flex items-center ml-2 mt-4 -mb-5">
+            <div className="flex flex-col items-center mr-4">
+              <button
+                className={`rounded-full p-1 ${VoteStatus === true ? 'bg-blue-500' : ''}`}
+                onClick={() => handleVoteClick('upvote')}
+              >
+                <FontAwesomeIcon icon={faHeart} className="text-xl" />
+              </button>
+              <span>{commentUpvotesCount}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <button
+                className={`rounded-full p-1 ${VoteStatus === false ? 'bg-red-500' : ''}`}
+                onClick={() => handleVoteClick('downvote')}
+              >
+                <FontAwesomeIcon icon={faThumbsDown} className="text-xl" />
+              </button>
+              <span>{commentDownvotesCount}</span>
+            </div>
+          </div>
+        </div> 
     </div>
     </>
   );

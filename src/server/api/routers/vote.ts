@@ -1,23 +1,47 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import { z } from "zod";
+import { boolean, z } from "zod";
+import type { User } from "@clerk/nextjs/dist/api";
+
 import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
+import { Redis } from "@upstash/redis";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
+import type { Post } from "@prisma/client";
+import { Input } from "postcss";
 
+export const voteRouter = createTRPCRouter({
 
-export const profileRouter = createTRPCRouter({
-    getUserByUsername: publicProcedure
-    .input(z.object({username: z.string()}))
-    .query( async ({ input}) =>{
-        const [user] = await clerkClient.users.getUserList({
-            username: [input.username],
-        });
-        if(!user){
-            throw new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "User not found",
-            });
-        }
-        return filterUserForClient(user);
-    }),
+  getAll: publicProcedure
+  .query(async ({ctx, input})=>{
+    const vote = await ctx.prisma.vote.findMany({
+    })
+    return vote;
+  }),
+    findPostVote: privateProcedure
+      .input(z.object({postId: z.string()}))
+      .query(async ({ctx, input}) =>{
+      const authorId = ctx.userId;
+      
+      const VotePost = await ctx.prisma.vote.findFirst({
+        where: {
+          postId: input.postId,
+          authorId,
+        },
+      })
+      return VotePost;
+  }),
+  findCommentPost: privateProcedure
+      .input(z.object({commentId: z.string()}))
+      .query(async ({ctx, input}) =>{
+      const authorId = ctx.userId;
+      
+      const VotePost = await ctx.prisma.vote.findFirst({
+        where: {
+          commentId: input.commentId,
+          authorId,
+        },
+      })
+      return VotePost;
+  }),
 });
