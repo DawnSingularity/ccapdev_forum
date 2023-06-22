@@ -1,9 +1,6 @@
 import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
-import { api } from "~/utils/api";
 
-import { LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 
 const CreatePostWizard = () =>{

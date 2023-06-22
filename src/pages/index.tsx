@@ -1,8 +1,6 @@
 import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
-import dayjs from "dayjs";
 import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api";
 
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
@@ -10,38 +8,6 @@ import toast from "react-hot-toast";
 import { PageLayout } from "~/components/layout";
 import { PostView } from "~/components/postview";
 import { NavBar } from "~/components/navbar";
-
-
-
-const Navbar = () => {
-  const {isSignedIn, user } = useUser();
-
-  return (
-    <nav className="flex items-center justify-between p-4 textColor">
-      <div className="flex items-center">
-        <span className="text-white font-bold text-lg"></span>
-      </div>
-      
-      <div className="flex items-center">
-        {!isSignedIn && (
-          <div className="flex justify-center">
-            
-            <SignInButton /></div>
-          )}
-        {!!isSignedIn && (
-            <div className="flex items-center">
-              <UserButton afterSignOutUrl="/"/>
-              
-              <div className="ml-2">
-                {user.username}
-              </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
-
 
 const CreatePostWizard = () =>{
   const {user} = useUser();

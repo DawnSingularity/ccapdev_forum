@@ -1,7 +1,7 @@
-import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import {useUser } from "@clerk/nextjs";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
-import { RouterOutputs, api } from "~/utils/api";
+import {  api } from "~/utils/api";
 import { PageLayout } from "~/components/layout";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { PostView } from "~/components/postview";

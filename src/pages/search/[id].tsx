@@ -1,4 +1,3 @@
-import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
@@ -7,7 +6,6 @@ import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { useRouter } from "next/router";
 
-import toast from "react-hot-toast";
 import { PostView } from "~/components/postview";
 import { CommentView } from "~/components/commentview";
 import { NavBar } from "~/components/navbar";

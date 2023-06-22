@@ -1,4 +1,4 @@
-import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import {useUser } from "@clerk/nextjs";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
