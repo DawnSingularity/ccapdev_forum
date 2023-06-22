@@ -9,6 +9,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { PageLayout } from "~/components/layout";
 import { PostView } from "~/components/postview";
+import { NavBar } from "~/components/navbar";
 
 
 
@@ -145,7 +146,7 @@ const Home: NextPage = () => {
   
   return (
         <>
-        <Navbar /><PageLayout>
+        <NavBar /><PageLayout>
       <CreatePostWizard />
       <PostFeed />
     </PageLayout>

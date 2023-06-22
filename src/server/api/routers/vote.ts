@@ -18,15 +18,13 @@ export const voteRouter = createTRPCRouter({
     })
     return vote;
   }),
-    findPostVote: privateProcedure
+    findPostVote: publicProcedure
       .input(z.object({postId: z.string()}))
       .query(async ({ctx, input}) =>{
-      const authorId = ctx.userId;
       
       const VotePost = await ctx.prisma.vote.findFirst({
         where: {
           postId: input.postId,
-          authorId,
         },
       })
       return VotePost;

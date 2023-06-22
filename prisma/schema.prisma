@@ -9,6 +9,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 model Post {
@@ -20,6 +21,10 @@ model Post {
   authorId  String
   comments  Comment[] @relation("PostToComment")
   votes     Vote[]
+
+  @@fulltext([title]) 
+  @@fulltext([content])
+  @@fulltext([title, content])
 }
 
 model Comment {
@@ -37,6 +42,7 @@ model Comment {
 
   @@index([parentCommentId])
   @@index([postId])
+  @@fulltext([content])
 }
 
 model Vote {

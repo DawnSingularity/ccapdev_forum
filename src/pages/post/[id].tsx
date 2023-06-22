@@ -6,40 +6,11 @@ import { PageLayout } from "~/components/layout";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { PostView } from "~/components/postview";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
-import { CommentView } from "~/components/commentview";
+import { PostCommentView } from "~/components/postcommentview";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import toast from "react-hot-toast";
-
-
-const Navbar = () => {
-  const {isSignedIn, user } = useUser();
-
-  return (
-    <nav className="flex items-center justify-between p-4">
-      <div className="flex items-center">
-        <span className="text-white font-bold text-lg"></span>
-      </div>
-
-      <div className="flex items-center">
-        {!isSignedIn && (
-          <div className="flex justify-center">
-
-            <SignInButton /></div>
-          )}
-        {!!isSignedIn && (
-            <div className="flex items-center">
-              <UserButton afterSignOutUrl="/"/>
-
-              <div className="ml-2">
-                {user?.username}
-              </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
+import { NavBar } from "~/components/navbar";
 
 
 
@@ -53,7 +24,7 @@ const CommentFeed = () => {
   return (
     <div className ="flex flex-col">
       {commentData?.map((fullPost) => (
-        <CommentView {...fullPost} key={fullPost.comment.id}/>
+        <PostCommentView {...fullPost} key={fullPost.comment.id}/>
       ))}
     </div>
   );
@@ -126,7 +97,7 @@ const SinglePostPage: NextPage<{id: string}> = ({id}) => {
       <Head>
         <title>{`${data.post.content ?? ""} - ${data.author.username ?? ""}`}</title>
       </Head>
-        <Navbar/>
+        <NavBar/>
         <PageLayout>
           <PostView {...data}/>
           <CommentFeed />

@@ -6,6 +6,7 @@
 body {
     @apply bg-[#020403];
     overscroll-behavior: none;
+    @apply text-[#f8fcfa];
 }
 .textColor{
     @apply text-[#f8fcfa];

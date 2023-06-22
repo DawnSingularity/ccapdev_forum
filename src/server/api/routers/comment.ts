@@ -7,6 +7,7 @@ import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import type { Comment } from "@prisma/client";
+import { contextProps } from "@trpc/react-query/shared";
 
 // Create a new ratelimiter, that allows 3 requests per 1 min
 const ratelimit = new Ratelimit({
@@ -45,12 +46,78 @@ const addUsersDataToComments = async (comments: Comment[]) =>{
 };
 
 export const commentsRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ctx, input})=>{
+  getAll: publicProcedure.query(async ({ctx})=>{
     const comments = await ctx.prisma.comment.findMany({
+      include: {
+        votes: true, // Include the "votes" relation field
+      },
     });
-    if(!comments) throw new TRPCError({code:"NOT_FOUND"});
-    
-    return comments;
+    const authorIds = comments.map((comment) => comment.authorId);
+      const authors = await clerkClient.users.getUserList({
+        userId: authorIds,
+        limit: 100,
+      });
+      const commentsWithAuthors = comments.map((comment) => {
+        const author = authors.map(filterUserForClient).find((user) => user.id === comment.authorId);
+        if (!author) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author for comment not found",
+          });
+        }
+        const commentUpvotesCount = comment?.votes.filter((comment) => comment.vote === true).length ?? 0;
+        const commentDownvotesCount = comment?.votes.filter((comment) => comment.vote === false).length ?? 0;
+
+        return {
+          comment,
+          author: {
+            ...author,
+            username: author.username,
+          },
+          commentUpvotesCount,
+          commentDownvotesCount,
+        };
+      });
+      return commentsWithAuthors;
+  }),
+  getAllById: publicProcedure
+  .input(z.object({id: z.string()}))
+  .query(async({ctx, input})=>{
+    const comments = await ctx.prisma.comment.findMany({
+      where:{
+        id: input.id,
+      },
+      include: {
+        votes: true, // Include the "votes" relation field
+      },
+    });
+    const authorIds = comments.map((comment) => comment.authorId);
+      const authors = await clerkClient.users.getUserList({
+        userId: authorIds,
+        limit: 100,
+      });
+      const commentsWithAuthors = comments.map((comment) => {
+        const author = authors.map(filterUserForClient).find((user) => user.id === comment.authorId);
+        if (!author) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author for comment not found",
+          });
+        }
+        const commentUpvotesCount = comment?.votes.filter((comment) => comment.vote === true).length ?? 0;
+        const commentDownvotesCount = comment?.votes.filter((comment) => comment.vote === false).length ?? 0;
+
+        return {
+          comment,
+          author: {
+            ...author,
+            username: author.username,
+          },
+          commentUpvotesCount,
+          commentDownvotesCount,
+        };
+      });
+      return commentsWithAuthors;
   }),
   getById: publicProcedure
   .input(z.object({id: z.string()}))
@@ -230,6 +297,7 @@ export const commentsRouter = createTRPCRouter({
     const authorId = ctx.userId;
     const prismaVote = await ctx.prisma.vote.findFirst({
       where: {
+        authorId,
         commentId: input.commentId,
       }
     })
@@ -255,6 +323,51 @@ export const commentsRouter = createTRPCRouter({
       return updatedVote
     }
   }),
+
+  search: publicProcedure
+  .input(z.object({ searchString: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const searchComment = await ctx.prisma.comment.findMany({
+      where: {
+        content:{
+          search: input.searchString,
+        },
+      },
+      include:{
+        votes: true,
+      },
+    });
+    const authorIds = searchComment.map((comment) => comment.authorId);
+      const authors = await clerkClient.users.getUserList({
+        userId: authorIds,
+        limit: 100,
+      });
+      const commentsWithAuthors = searchComment.map((comment) =>{
+      const author = authors.map(filterUserForClient).find((user) => user.id === comment.authorId);
+      if (!author) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Author for comment not found",
+        });
+      }
+      const commentUpvotesCount = comment?.votes.filter((vote) => vote.vote === true).length ?? 0;
+      const commentDownvotesCount = comment?.votes.filter((vote) => vote.vote === false).length ?? 0;
+
+      return {
+        comment,
+        author: {
+          ...author,
+          username: author.username,
+          },
+          commentUpvotesCount,
+          commentDownvotesCount,
+        };
+      });
+      return commentsWithAuthors;  
+  }),
+
+
+
   create: privateProcedure
     .input(
       z.object({

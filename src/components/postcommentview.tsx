@@ -10,8 +10,8 @@ import { LoadingSpinner } from "./loading";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 dayjs.extend(relativeTime);
-type CommentWithUser = RouterOutputs["comments"]["getAllById"][number];
-export const CommentView = (props: CommentWithUser) => {
+type CommentWithUser = RouterOutputs["comments"]["getCommentByPostId"][number];
+export const PostCommentView = (props: CommentWithUser) => {
   const user = useUser();
   const {comment, author, commentUpvotesCount, commentDownvotesCount} = props;
   const createdAt = dayjs(comment.createdAt).fromNow();

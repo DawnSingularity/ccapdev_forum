@@ -214,6 +214,51 @@ export const postsRouter = createTRPCRouter({
     return post;
     }),
 
+
+    search: publicProcedure
+    .input(z.object({ searchString: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const searchPost = await ctx.prisma.post.findMany({
+        where: {
+          title:{
+            search: input.searchString,
+          },
+          content:{
+            search: input.searchString,
+          },
+        },
+        include:{
+          votes: true,
+        },
+      });
+      const authorIds = searchPost.map((post) => post.authorId);
+      const authors = await clerkClient.users.getUserList({
+        userId: authorIds,
+        limit: 100,
+      });
+      const postData = searchPost.map((post) =>{
+      const author = authors.map(filterUserForClient).find((user) => user.id === post.authorId);
+        if (!author) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author for comment not found",
+          });
+        }
+        const postUpvotesCount = post?.votes.filter((vote) => vote.vote === true).length ?? 0;
+        const postDownvotesCount = post?.votes.filter((vote) => vote.vote === false).length ?? 0;
+        return {
+          post,
+          author: {
+            ...author,
+            username: author.username,
+          },
+          postUpvotesCount,
+          postDownvotesCount,
+        };
+      });
+        return postData;  
+    }),
+  
   updatePostVote: privateProcedure
   .input(
     z.object({
@@ -225,6 +270,7 @@ export const postsRouter = createTRPCRouter({
     const authorId = ctx.userId;
     const voteId = await ctx.prisma.vote.findFirst({
       where: {
+        authorId,
         postId: input.postId,
       }
     })

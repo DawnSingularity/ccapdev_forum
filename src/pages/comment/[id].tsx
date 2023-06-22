@@ -11,36 +11,8 @@ import toast from "react-hot-toast";
 import { SubCommentView } from "~/components/subcommentview";
 import { PostView } from "~/components/postview";
 import { MainCommentView } from "~/components/maincommentview";
+import { NavBar } from "~/components/navbar";
 
-
-const Navbar = () => {
-  const {isSignedIn, user } = useUser();
-
-  return (
-    <nav className="flex items-center justify-between p-4">
-      <div className="flex items-center">
-        <span className="text-white font-bold text-lg"></span>
-      </div>
-
-      <div className="flex items-center">
-        {!isSignedIn && (
-          <div className="flex justify-center">
-
-            <SignInButton /></div>
-          )}
-        {!!isSignedIn && (
-            <div className="flex items-center">
-              <UserButton afterSignOutUrl="/"/>
-
-              <div className="ml-2">
-                {user?.username}
-              </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
 
 const MainCommentFeed = () => {
   const router = useRouter();
@@ -148,7 +120,7 @@ const SingleCommentPage: NextPage<{id: string}> = ({id}) => {
       <Head>
         <title>{`${data.content ?? ""}`}</title>
       </Head>
-        <Navbar/>
+        <NavBar/>
         <PageLayout>
           <PostView {...postData}/>
           <MainCommentFeed />
