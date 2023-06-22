@@ -8,7 +8,7 @@ const CreatePostWizard = () =>{
     const router = useRouter();
 
     const handleSearch = () => {
-        router.push(`/search/${search}`);
+        void router.push(`/search/${search}`);
     };
     
     return (
