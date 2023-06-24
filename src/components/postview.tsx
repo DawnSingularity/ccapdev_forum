@@ -46,6 +46,8 @@ export const PostView = (props: PostWithUser) => {
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+    setUpdateContent(post.content);
+    setUpdatetitle(post.title);
   };
   const {mutate: mutationUpdate, isLoading: isPosting} = api.posts.update.useMutation({
     onSuccess: () =>{
@@ -115,7 +117,7 @@ export const PostView = (props: PostWithUser) => {
                 <div className ="flex w-full gap-3 flex-col">
                   <input 
                     placeholder="Title" 
-                    className="bg-transparent grow outline-none"
+                    className="bg-transparent grow outline-none border-b border-slate-400"
                     type="text"
                     value={updatetitle}
                     onChange={(e) => setUpdatetitle(e.target.value)}
@@ -131,7 +133,7 @@ export const PostView = (props: PostWithUser) => {
                   />
                   <input 
                     placeholder="Content" 
-                    className="bg-transparent grow outline-none flex-col" 
+                    className="bg-transparent grow outline-none border-b border-slate-400" 
                     type="text"
                     name="content"
                     value={updateContent}

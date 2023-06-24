@@ -1,5 +1,5 @@
 import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
-
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -12,7 +12,7 @@ const CreatePostWizard = () =>{
     };
     
     return (
-    <div className=" p-2 flex flex-row ">
+    <div className="p-2 flex flex-row ">
         <div className="flex w-full gap-3">
           <input
             placeholder="search"
@@ -32,7 +32,7 @@ const CreatePostWizard = () =>{
           {search !== '' && (
             <button
               onClick={handleSearch}
-              className="primaryButton hover:bg-green-300 text-white font-bold p-1 rounded"
+              className="primaryButton hover:bg-green-300 text-white font-bold p-2 rounded-lg"
             >
               Search
             </button>
@@ -61,7 +61,9 @@ export const NavBar = ()=>{
                     <UserButton afterSignOutUrl="/"/>
 
                     <div className="ml-2">
-                        {user?.username}
+                    <Link href={`/${user?.username ?? ""}`}>
+                      {user?.username}
+                    </Link>
                     </div>
                 </div>
                 )}

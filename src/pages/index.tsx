@@ -35,8 +35,8 @@ const CreatePostWizard = () =>{
 
   if(!user) return null;
   return (
-    <div className = "border-b border-slate-400 p-8 flex">
-      <div className ="flex w-full gap-3">
+    <div className = "border-b border-slate-400 p-8 flex flex-col">
+      <div className ="flex w-full gap-3 flex-col">
         <input 
           placeholder="Title" 
           className="bg-transparent grow outline-none"
@@ -53,10 +53,10 @@ const CreatePostWizard = () =>{
           }}
           disabled={isPosting}
         />
-        <input 
-          placeholder="Content" 
-          className="bg-transparent grow outline-none" 
-          type="text"
+        <textarea 
+          id="message" 
+          className="block p-2.5 w-full text-sm bg-transparent rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+          placeholder="content"
           name="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -69,9 +69,12 @@ const CreatePostWizard = () =>{
             }
           }}
           disabled={isPosting}
-        />
+          />
         {title !=="" && content !=="" && !isPosting && (
-          <button onClick={() => mutate({title, content})} >
+          <button 
+          onClick={() => mutate({title, content})} 
+          className="primaryButton hover:bg-green-300 text-white font-bold p-1 rounded-lg"
+          >
             Post
           </button>)}
         {isPosting && (

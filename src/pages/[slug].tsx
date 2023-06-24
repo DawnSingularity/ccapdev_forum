@@ -105,12 +105,15 @@ const ProfilePage: NextPage<{username: string}> = ({username}) => {
                     className="rounded-full border-white border-2"
                 />
             </div>
-            <div className="h-[32px]"/>
-            <div className=" text-2xl font-bold">{userProfiledata.username ?? ""}</div>
-            <div className=" text-2xl">{userDescription?.description ?? "no bio "}</div>
-            {(userProfiledata.id === user.user?.id) && (
-              <CreatePostWizard userId={userProfiledata.id}/>
-            )}
+            <div className="h-[16px]"/>
+            <div className="pl-5">
+              <div className=" text-2xl font-bold">{userProfiledata.username ?? ""}</div>
+              <div className=" text-2xl">{userDescription?.description ?? "no bio "}</div>
+            </div>
+
+              {(userProfiledata.id === user.user?.id) && (
+                <CreatePostWizard userId={userProfiledata.id}/>
+              )}
 
             <div className="border-b w-full border-slate-500"/>
             <ProfileFeed userId={userProfiledata?.id}/>

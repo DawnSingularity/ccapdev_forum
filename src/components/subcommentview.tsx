@@ -22,6 +22,7 @@ export const SubCommentView = (props: CommentWithUser) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+    setUpdateContent(comment.content);
   };
   const [voteType, setVoteType] = useState<null | string>(null);
   const vote = api.votes.findCommentPost.useQuery({commentId: comment.id});
@@ -75,7 +76,7 @@ export const SubCommentView = (props: CommentWithUser) => {
   return(
     <>
     <div key={comment.id} className ="flex border-b border-slate-400 p-8 pl-16 gap-3 relative">
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-shrink-0">
         <Image 
           src={author.profileImageUrl} 
           alt={`${author.username ?? ""}'s profile picture`}
@@ -92,7 +93,7 @@ export const SubCommentView = (props: CommentWithUser) => {
           {(createdAt !== updatedAt) && <span className="ml-2 font-thin">edited</span>}
         </div>
         <Link href={`/comment/${comment.id}`}>
-          <div className="flex flex-col w-96">
+          <div className="flex flex-col">
               {!isMenuOpen && (
                 <>
                   <span className="font-thin">{comment.content}</span>
@@ -119,7 +120,7 @@ export const SubCommentView = (props: CommentWithUser) => {
                 <div className ="flex w-96">
                   <input 
                     placeholder="Content" 
-                    className="bg-transparent grow outline-none" 
+                    className="bg-transparent grow outline-none border-b border-slate-400" 
                     type="text"
                     name="content"
                     value={updateContent}
