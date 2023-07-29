@@ -5,7 +5,7 @@ import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/ap
 export const voteRouter = createTRPCRouter({
 
   getAll: publicProcedure
-  .query(async ({ctx, input})=>{
+  .query(async ({ctx})=>{
     const vote = await ctx.prisma.vote.findMany({
     })
     return vote;

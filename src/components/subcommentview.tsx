@@ -7,8 +7,7 @@ import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { LoadingSpinner } from "./loading";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faHeartCrack, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { Dislike, Like } from ".";
 dayjs.extend(relativeTime);
 type CommentWithUser = RouterOutputs["comments"]["getCommentByParentCommentId"][number];
 export const SubCommentView = (props: CommentWithUser) => {
@@ -167,7 +166,7 @@ export const SubCommentView = (props: CommentWithUser) => {
                 className={`rounded-full p-1 ${VoteStatus === true ? 'bg-blue-500' : ''}`}
                 onClick={() => handleVoteClick('upvote')}
               >
-                <FontAwesomeIcon icon={faHeart} className="text-xl" />
+                <Like className="h-8 w-8" />
               </button>
               <span>{commentUpvotesCount}</span>
             </div>
@@ -176,7 +175,7 @@ export const SubCommentView = (props: CommentWithUser) => {
                 className={`rounded-full p-1 ${VoteStatus === false ? 'bg-red-500' : ''}`}
                 onClick={() => handleVoteClick('downvote')}
               >
-                <FontAwesomeIcon icon={faThumbsDown} className="text-xl" />
+                <Dislike className="h-8 w-8" />
               </button>
               <span>{commentDownvotesCount}</span>
             </div>

@@ -6,8 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useState } from "react";
 import { LoadingSpinner } from "./loading";
 import { useUser } from "@clerk/nextjs";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { Dislike, Like } from ".";
 dayjs.extend(relativeTime);
 
 
@@ -175,7 +174,7 @@ export const PostView = (props: PostWithUser) => {
                 className={`rounded-full p-1 ${VoteStatus === true ? 'bg-blue-500' : ''}`}
                 onClick={() => handleVoteClick('upvote')}
               >
-                <FontAwesomeIcon icon={faHeart} className="text-xl" />
+                <Like className="h-8 w-8" />
               </button>
               <span>{postUpvotesCount}</span>
             </div>
@@ -184,7 +183,7 @@ export const PostView = (props: PostWithUser) => {
                 className={`rounded-full p-1 ${VoteStatus === false ? 'bg-red-500' : ''}`}
                 onClick={() => handleVoteClick('downvote')}
               >
-                <FontAwesomeIcon icon={faThumbsDown} className="text-xl" />
+                <Dislike className="h-8 w-8" />
               </button>
               <span>{postDownvotesCount}</span>
             </div>
