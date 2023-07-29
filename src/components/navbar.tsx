@@ -2,6 +2,7 @@ import {SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { HomeButton } from ".";
 
 const CreatePostWizard = () =>{
     const [search, setSearch] = useState('');
@@ -46,6 +47,7 @@ export const NavBar = ()=>{
     return(
         <nav className="flex items-center justify-between p-4 border-b border-slate-400">
             <div className="flex items-center">
+                <HomeButton className = 'text-5xl'/>
                 <span className="text-white font-bold text-lg"></span>
                 <CreatePostWizard/>
             </div>
@@ -53,7 +55,6 @@ export const NavBar = ()=>{
             <div className="flex items-center">
                 {!isSignedIn && (
                 <div className="flex justify-center">
-
                     <SignInButton /></div>
                 )}
                 {!!isSignedIn && (
